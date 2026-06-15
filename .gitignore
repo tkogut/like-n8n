@@ -5,3 +5,7 @@ __pycache__/
 .DS_Store
 node_modules/
 .env
+
+# Credentials and secrets
+credentials.json
+credentials*.json
