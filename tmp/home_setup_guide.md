@@ -56,5 +56,13 @@ Logi kontenera sprawdzisz przez: `docker compose logs -f`.
 
 ---
 
+## 💬 4. Odczytanie historii tej rozmowy
+W katalogu `tmp/` znajduje się wyeksportowany plik z pełną historią naszej rozmowy:
+* **[conversation_history.md](file:///home/tkogut/projects/like-n8n/tmp/conversation_history.md)**
+
+Możesz go otworzyć w dowolnym edytorze Markdown (lub na GitHubie), aby prześledzić dyskusję, podjęte decyzje oraz komendy wykonane podczas tworzenia tej automatyzacji.
+
+---
+
 > [!IMPORTANT]
-> **Bezpieczeństwo**: Nigdy nie usuwaj wpisów `credentials.json` ani `.env` z pliku `.gitignore`. Zapobiega to przypadkowemu opublikowaniu Twoich kluczy dostępu w chmurze na GitHubie.
+> **Bezpieczeństwo**: Never delete `credentials.json` or `.env` entries from `.gitignore`. This prevents accidentally publishing your access keys to GitHub.
