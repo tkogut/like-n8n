@@ -6,6 +6,11 @@ __pycache__/
 node_modules/
 .env
 
+# Virtual environments
+venv/
+.venv/
+env/
+
 # Credentials and secrets
 credentials.json
 credentials*.json
