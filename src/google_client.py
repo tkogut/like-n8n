@@ -158,6 +158,34 @@ class GoogleClient:
                 data_map[key] = new_idx
                 rows.append(row_data)
 
+    def _ensure_sheet_exists(self, sheet_name: str):
+        """
+        Sprawdza czy zakładka o podanej nazwie istnieje w arkuszu.
+        Jeśli nie, tworzy ją.
+        """
+        spreadsheet = self.sheets_service.spreadsheets().get(
+            spreadsheetId=self.spreadsheet_id
+        ).execute()
+        sheets = spreadsheet.get('sheets', [])
+        sheet_titles = [s.get('properties', {}).get('title') for s in sheets]
+        
+        if sheet_name not in sheet_titles:
+            body = {
+                'requests': [
+                    {
+                        'addSheet': {
+                            'properties': {
+                                'title': sheet_name
+                            }
+                        }
+                    }
+                ]
+            }
+            self.sheets_service.spreadsheets().batchUpdate(
+                spreadsheetId=self.spreadsheet_id,
+                body=body
+            ).execute()
+
     def get_linkedin_profiles(self, sheet_name: str) -> list:
         """
         Wczytuje profile z zakładki 'Profile' (kolumny 'Nazwa' i 'LinkedIn Username').
@@ -205,6 +233,8 @@ class GoogleClient:
         """
         if not records:
             return
+
+        self._ensure_sheet_exists(sheet_name)
 
         sheet_range = f"'{sheet_name}'!A:E"
         try:

@@ -25,15 +25,19 @@ class LinkedInClient:
         req = urllib.request.Request(url)
         req.add_header("X-linkdapi-apikey", self.api_key)
         req.add_header("Accept", "application/json")
+        req.add_header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
         try:
             with urllib.request.urlopen(req, timeout=10) as response:
                 status = response.getcode()
                 if status == 200:
-                    data = json.loads(response.read().decode("utf-8"))
-                    follower_count = data.get("followerCount")
+                    res_json = json.loads(response.read().decode("utf-8"))
+                    profile_data = res_json.get("data")
+                    if not profile_data or not isinstance(profile_data, dict):
+                        raise ValueError(f"Brak sekcji 'data' w odpowiedzi dla profilu {username}.")
+                    follower_count = profile_data.get("followerCount")
                     if follower_count is None:
-                        raise ValueError(f"Brak pola 'followerCount' w odpowiedzi dla profilu {username}.")
+                        raise ValueError(f"Brak pola 'followerCount' w sekcji 'data' dla profilu {username}.")
                     return int(follower_count)
                 else:
                     raise Exception(f"Nieoczekiwany status HTTP: {status}")

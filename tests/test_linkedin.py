@@ -33,7 +33,7 @@ class TestLinkedInClient(unittest.TestCase):
     def test_get_follower_count_success(self, mock_urlopen):
         mock_response = MagicMock()
         mock_response.getcode.return_value = 200
-        mock_response.read.return_value = b'{"followerCount": 1234}'
+        mock_response.read.return_value = b'{"data": {"followerCount": 1234}}'
         mock_response.__enter__.return_value = mock_response
         mock_urlopen.return_value = mock_response
 
@@ -51,7 +51,7 @@ class TestLinkedInClient(unittest.TestCase):
     def test_get_follower_count_missing_field(self, mock_urlopen):
         mock_response = MagicMock()
         mock_response.getcode.return_value = 200
-        mock_response.read.return_value = b'{"invalid": "data"}'
+        mock_response.read.return_value = b'{"data": {"invalid": "data"}}'
         mock_response.__enter__.return_value = mock_response
         mock_urlopen.return_value = mock_response
 
