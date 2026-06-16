@@ -99,9 +99,11 @@ Klasa `GoogleClient` realizuje całą bezpośrednią komunikację:
 * `append_linkedin_followers(sheet_name, records)`: Zapisuje pomiary obserwujących w zakładce `LinkedIn_Followers`.
 
 ### 3. Klient LinkedIn (`src/linkedin_client.py`)
-Klasa `LinkedInClient` komunikuje się z `api.linkdapi.com`:
-* Pobiera dane profilu z endpointu `/v1/profile/{username}` przy użyciu nagłówka `X-API-Key`.
-* Parsuje i zwraca pole `followerCount`.
+Klasa `LinkedInClient` komunikuje się z serwisem `linkdapi.com`:
+* Pobiera pełne dane profilu z endpointu `https://linkdapi.com/api/v1/profile/full?username={username}` przy użyciu nagłówka `X-linkdapi-apikey`.
+* Koduje nazwę użytkownika (username) za pomocą `urllib.parse.quote`, co pozwala na obsługę profili zawierających polskie znaki diakrytyczne.
+* Wysyła nagłówek `User-Agent` udający przeglądarkę, aby uniknąć blokowania przez reguły bezpieczeństwa Cloudflare (błąd 1010).
+* Parsuje odpowiedź JSON i zwraca liczbę obserwujących zagnieżdżoną pod kluczem `data` -> `followerCount`.
 
 ### 4. Parser CSV (`src/parser.py`)
 Funkcja `parse_csv(csv_content)` przetwarza pobrane pliki:
