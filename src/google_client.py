@@ -68,6 +68,8 @@ class GoogleClient:
         if not records:
             return
 
+        self._ensure_sheet_exists(sheet_name)
+
         # Fetch current sheets structure
         sheet_range = f"'{sheet_name}'!A:E"
         try:
