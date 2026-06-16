@@ -157,3 +157,114 @@ class GoogleClient:
                 new_idx = len(rows) + 1
                 data_map[key] = new_idx
                 rows.append(row_data)
+
+    def get_linkedin_profiles(self, sheet_name: str) -> list:
+        """
+        Wczytuje profile z zakładki 'Profile' (kolumny 'Nazwa' i 'LinkedIn Username').
+        Zwraca listę słowników: [{"name": nazwa, "username": username}, ...]
+        """
+        sheet_range = f"'{sheet_name}'!A:E"
+        try:
+            result = self.sheets_service.spreadsheets().values().get(
+                spreadsheetId=self.spreadsheet_id,
+                range=sheet_range
+            ).execute()
+        except Exception as e:
+            raise e
+
+        rows = result.get('values', [])
+        if not rows:
+            return []
+
+        headers = [h.strip() for h in rows[0]]
+        
+        try:
+            nazwa_idx = headers.index('Nazwa')
+        except ValueError:
+            nazwa_idx = 0
+        
+        try:
+            username_idx = headers.index('LinkedIn Username')
+        except ValueError:
+            username_idx = 1
+
+        profiles = []
+        for row in rows[1:]:
+            name = row[nazwa_idx].strip() if len(row) > nazwa_idx else ""
+            username = row[username_idx].strip() if len(row) > username_idx else ""
+            if name or username:
+                profiles.append({
+                    "name": name,
+                    "username": username
+                })
+        return profiles
+
+    def append_linkedin_followers(self, sheet_name: str, records: list):
+        """
+        Zapisuje pomiary do zakładki 'LinkedIn_Followers' (kolumny 'Data pomiaru', 'Nazwa profilu', 'Obserwujący').
+        """
+        if not records:
+            return
+
+        sheet_range = f"'{sheet_name}'!A:E"
+        try:
+            result = self.sheets_service.spreadsheets().values().get(
+                spreadsheetId=self.spreadsheet_id,
+                range=sheet_range
+            ).execute()
+        except Exception as e:
+            raise e
+
+        rows = result.get('values', [])
+        headers = ["Data pomiaru", "Nazwa profilu", "Obserwujący"]
+
+        if not rows:
+            # Sheet is empty, write headers first
+            self.sheets_service.spreadsheets().values().update(
+                spreadsheetId=self.spreadsheet_id,
+                range=f"'{sheet_name}'!A1:C1",
+                valueInputOption="USER_ENTERED",
+                body={"values": [headers]}
+            ).execute()
+            rows = [headers]
+
+        header_row = rows[0]
+        col_indices = {}
+        header_updated = False
+        
+        for h in headers:
+            if h in header_row:
+                col_indices[h] = header_row.index(h)
+            else:
+                col_indices[h] = len(header_row)
+                header_row.append(h)
+                header_updated = True
+
+        if header_updated:
+            self.sheets_service.spreadsheets().values().update(
+                spreadsheetId=self.spreadsheet_id,
+                range=f"'{sheet_name}'!A1:{chr(65 + len(header_row) - 1)}1",
+                valueInputOption="USER_ENTERED",
+                body={"values": [header_row]}
+            ).execute()
+
+        data_idx = col_indices["Data pomiaru"]
+        nazwa_idx = col_indices["Nazwa profilu"]
+        obserwujacy_idx = col_indices["Obserwujący"]
+
+        values_to_append = []
+        for record in records:
+            row_data = ["" for _ in range(max(col_indices.values()) + 1)]
+            row_data[data_idx] = record["Data pomiaru"]
+            row_data[nazwa_idx] = record["Nazwa profilu"]
+            row_data[obserwujacy_idx] = record["Obserwujący"]
+            values_to_append.append(row_data)
+
+        if values_to_append:
+            append_range = f"'{sheet_name}'!A:A"
+            self.sheets_service.spreadsheets().values().append(
+                spreadsheetId=self.spreadsheet_id,
+                range=append_range,
+                valueInputOption="USER_ENTERED",
+                body={"values": values_to_append}
+            ).execute()
