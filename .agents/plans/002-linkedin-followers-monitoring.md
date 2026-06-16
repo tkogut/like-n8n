@@ -13,8 +13,8 @@ Założenia architektoniczne i kolumny:
      * `Nazwa profilu`
      * `Obserwujący`
 2. **LinkdAPI**:
-   * Punkt końcowy (endpoint): `https://api.linkdapi.com/v1/profile/{username}`
-   * Nagłówek autoryzacji: `X-API-Key`
+   * Punkt końcowy (endpoint): `https://linkdapi.com/api/v1/profile/full?username={username}` (z URL-encodingiem parametru username).
+   * Nagłówek autoryzacji: `X-linkdapi-apikey`
    * Klucz w odpowiedzi JSON: `followerCount`
    * Pobierany z konfiguracji: `LINKEDIN_API_KEY` (zapisany w `.env`).
 
@@ -29,7 +29,8 @@ Założenia architektoniczne i kolumny:
 
 ### 2. Faza: Implementacja Kodów (Builder Task)
 - **`src/linkedin_client.py`**:
-  * Nowy moduł wykonujący bezpośrednie zapytanie HTTP GET do `https://api.linkdapi.com/v1/profile/{username}` z nagłówkiem `X-API-Key`.
+  * Nowy moduł wykonujący bezpośrednie zapytanie HTTP GET do `https://linkdapi.com/api/v1/profile/full?username={username}` z nagłówkiem `X-linkdapi-apikey`.
+  * Wdrożenie URL-encodingu nazwy użytkownika (`urllib.parse.quote(username)`), aby obsłużyć znaki specjalne i narodowe (np. ż, ł, itp.).
   * Parsowanie klucza `followerCount`.
   * Wdrożenie obsługi błędów (np. błędny API key, profil nie istnieje, limit zapytań).
 - **`src/config.py`**:

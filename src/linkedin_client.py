@@ -1,5 +1,6 @@
 import urllib.request
 import urllib.error
+import urllib.parse
 import json
 import logging
 
@@ -8,7 +9,7 @@ logger = logging.getLogger(__name__)
 class LinkedInClient:
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.base_url = "https://api.linkdapi.com/v1/profile"
+        self.base_url = 'https://linkdapi.com/api/v1/profile/full'
 
     def get_follower_count(self, username: str) -> int:
         """
@@ -20,9 +21,9 @@ class LinkedInClient:
         if not username:
             raise ValueError("Nazwa użytkownika LinkedIn nie może być pusta.")
 
-        url = f"{self.base_url}/{username}"
+        url = f"{self.base_url}?username={urllib.parse.quote(username)}"
         req = urllib.request.Request(url)
-        req.add_header("X-API-Key", self.api_key)
+        req.add_header("X-linkdapi-apikey", self.api_key)
         req.add_header("Accept", "application/json")
 
         try:

@@ -43,7 +43,9 @@ class TestLinkedInClient(unittest.TestCase):
 
         mock_urlopen.assert_called_once()
         req = mock_urlopen.call_args[0][0]
-        self.assertEqual(req.get_header("X-api-key"), "test_key")
+        # urllib.request.Request headers are capitalized, so "X-linkdapi-apikey" will be returned
+        self.assertEqual(req.get_header("X-linkdapi-apikey"), "test_key")
+        self.assertEqual(req.get_full_url(), "https://linkdapi.com/api/v1/profile/full?username=test_user")
 
     @patch('urllib.request.urlopen')
     def test_get_follower_count_missing_field(self, mock_urlopen):
@@ -60,7 +62,7 @@ class TestLinkedInClient(unittest.TestCase):
     @patch('urllib.request.urlopen')
     def test_get_follower_count_http_error(self, mock_urlopen):
         mock_urlopen.side_effect = urllib.error.HTTPError(
-            url="https://api.linkdapi.com/v1/profile/test_user",
+            url="https://linkdapi.com/api/v1/profile/full?username=test_user",
             code=404,
             msg="Not Found",
             hdrs=None,
